@@ -8,16 +8,12 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Marvin Killing", "Peter Retzlaff"]
   spec.email         = ["pe.retzlaff@gmail.com"]
 
-  spec.summary       = %q{Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
-  spec.homepage      = "https://www.example.com"
+  spec.summary       = "HttpZip is a gem to extract individual files from a remote ZIP archive, without the need to download the entire file."
+  spec.homepage      = "https://github.com/peret/http_zip"
   spec.license       = "MIT"
 
-  spec.metadata["allowed_push_host"] = "Set to 'http://mygemserver.com'"
-
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://www.example.com"
-  spec.metadata["changelog_uri"] = "https://www.example.com"
+  spec.metadata["source_code_uri"] = "https://github.com/peret/http_zip"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
