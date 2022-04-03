@@ -26,7 +26,8 @@ Or install it yourself as:
 
 ```ruby
 # Create a new HttpZip::File referencing your remote archive.
-# This doesn't make any requests yet.
+# This only makes a HEAD request to check the server for
+# Range request support.
 zip = HttpZip::File.new("https://www.example.org/archive.zip")
 
 # Get a reference to a specific file.

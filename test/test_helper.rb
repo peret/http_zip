@@ -8,7 +8,16 @@ require "minitest/autorun"
 require 'webmock/minitest'
 
 class MiniTest::Test
+  def mock_content_range_head_request
+    stub_request(:head, @url).to_return(
+      status: 200,
+      body: '',
+      headers: { 'Accept-Ranges' => 'bytes' }
+    )
+  end
+
   def mock_range_request(url, file)
+    mock_content_range_head_request
     stub_request(:get, url).to_return do |request|
       range = request.headers['Range']
       if range.empty?

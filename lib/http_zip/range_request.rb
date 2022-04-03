@@ -35,5 +35,16 @@ module HttpZip
 
       response.body
     end
+
+    def check_server_supports_content_range!
+      return if self.class.server_supports_content_range?(@url)
+
+      raise ServerDoesNotSupportContentRange, 'Server does not support the Range header'
+    end
+
+    def self.server_supports_content_range?(url)
+      response = HTTParty.head(url)
+      response.headers['Accept-Ranges'] && response.headers['Accept-Ranges'].downcase != 'none'
+    end
   end
 end
