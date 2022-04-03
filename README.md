@@ -42,6 +42,12 @@ content = entry.read
 entry.write_to_file('/path/extracted.txt')
 ```
 
+If the server that the zip file is hosted on doesn't support Range requests, HttpZip will throw `HttpZip::ContentRangeError`. If you want you can check this beforehand by calling:
+
+```ruby
+HttpZip::RangeRequest.server_supports_content_range?(url)
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/peret/http_zip.
