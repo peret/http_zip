@@ -1,8 +1,10 @@
 # HttpZip
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/http_zip`. To experiment with that code, run `bin/console` for an interactive prompt.
+HttpZip is a Ruby gem to extract individual files from a remote ZIP archive, without the need to download the entire file.
 
-TODO: Delete this and the text above, and describe your gem
+If your Zip file is hosted on a server that supports Content-Range requests and you only want to extract individual files, you don't need to download
+the entire archive to do that. HttpZip uses Content-Range requests to first read only the Central Directory of your archive and builds a list of entries
+from that. You can then download and extract individual entries without downloading the entire archive.
 
 ## Installation
 
@@ -14,7 +16,7 @@ gem 'http_zip'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
@@ -22,17 +24,26 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+# Create a new HttpZip::File referencing your remote archive.
+# This doesn't make any requests yet.
+zip = HttpZip::File.new("https://www.example.org/archive.zip")
 
-## Development
+# Get a reference to a specific file.
+# This only requests the archive's Central Directory Entry.
+entry = zip.entries.find { |e| e.name == 'compressed.txt' }
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+# Read the extracted file contents into memory.
+# This downloads the entry's compressed contents and uncompresses
+# them locally.
+content = entry.read
+# You can also write the extracted entry directly to a local file.
+entry.write_to_file('/path/extracted.txt')
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/http_zip.
+Bug reports and pull requests are welcome on GitHub at https://github.com/peret/http_zip.
 
 ## License
 
