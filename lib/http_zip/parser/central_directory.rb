@@ -15,7 +15,7 @@ module HttpZip
 
       def parse_eocd64!(eocd64_block)
         unless eocd64_block.start_with?(EOCD64_BLOCK_IDENTIFER)
-          raise CannotLocateEocdBlock, 'I thought this should be the EOCD64 record, but it is not'
+          raise ZipError, 'EOCD64 record not found'
         end
 
         @size, @offset = eocd64_block[40..-1].unpack('Q<Q<')
@@ -33,13 +33,13 @@ module HttpZip
         # parse the EOCD locator to find out where the EOCD64 block starts
         eocd64_locator_block = @bytes[(eocd_block_index - 20)..eocd_block_index]
         unless eocd64_locator_block.start_with?(EOCD64_LOCATOR_BLOCK_IDENTIFER)
-          raise CannotLocateEocdBlock, 'Could not locate the EOCD64 locator block'
+          raise ZipError, 'Could not locate the EOCD64 locator block'
         end
 
         @eocd64_offset, total_num_disks = eocd64_locator_block[8..-1].unpack('Q<V')
         return if total_num_disks == 1
 
-        raise CannotLocateEocdBlock, 'Multi-disk archives are not supported'
+        raise ZipError, 'Multi-disk archives are not supported'
       end
 
       # In order to find the central directory, we have to first find the EOCD block.
@@ -58,7 +58,7 @@ module HttpZip
           eocd_block_start_index = candidate_eocd_block.rindex(EOCD_BLOCK_IDENTIFIER, search_end_position)
 
           if eocd_block_start_index.nil?
-            raise CannotLocateEocdBlock, 'Could not locate valid EOCD block'
+            raise ZipError, 'Could not locate valid EOCD block'
           end
 
           # we have a candidate, verify that we found the actual eocd block start by

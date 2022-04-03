@@ -44,7 +44,7 @@ module HttpZip
           inflater.close
         end
       else
-        raise HttpZip::UnsupportedCompressionMethod, "Unsupported compression method #{compression_method}. We only support compression method 8 (DEFLATE)."
+        raise HttpZip::ZipError, "Unsupported compression method #{compression_method}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
       end
 
       [decompress, finish]

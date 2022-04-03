@@ -21,7 +21,7 @@ module HttpZip
       def initialize(file_header_bytes)
         @bytes = file_header_bytes
         unless @bytes.start_with?(CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER)
-          raise CentralDirectoryCorrupt, 'Central Directory File Header seems to be corrupt'
+          raise ZipError, 'Central Directory File Header seems to be corrupt'
         end
 
         parse!

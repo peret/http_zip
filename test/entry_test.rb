@@ -14,7 +14,7 @@ module HttpZip
       extra_field_length = 0
       stubbed_header = [0, compression_method, 0, 0, file_name_length, extra_field_length].pack('QvQQvv')
       entry.stub :header, stubbed_header do
-        assert_raises HttpZip::UnsupportedCompressionMethod do
+        assert_raises HttpZip::ZipError do
           entry.read
         end
       end
