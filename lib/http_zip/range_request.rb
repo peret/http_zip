@@ -18,7 +18,7 @@ module HttpZip
 
       if response.code != 206
         # oops, we downloaded the whole file
-        raise ServerDoesNotSupportContentRange, 'Server does not support the Range header, might as well download the file as a whole'
+        raise ServerDoesNotSupportContentRange, 'Server does not support the Range header'
       end
 
       response.body
@@ -30,7 +30,7 @@ module HttpZip
       response = HTTParty.get(@url, headers: { 'Range' => "bytes=-#{num_bytes}" })
       if response.code != 206
         # oops, we downloaded the whole file
-        raise ServerDoesNotSupportContentRange, 'Server does not support the Range header, might as well download the file as a whole'
+        raise ServerDoesNotSupportContentRange, 'Server does not support the Range header'
       end
 
       response.body

@@ -26,13 +26,14 @@ module HttpZip
       # which compression method is used?
       compression_method = header[8...10].unpack1('v')
 
-      if compression_method == 0
+      case compression_method
+      when 0
         # STORED content, doesn't require decompression
         decompress = lambda { |input|
           input
         }
         finish = -> {}
-      elsif compression_method == 8
+      when 8
         inflater = Zlib::Inflate.new(-Zlib::MAX_WBITS)
         # DEFLATED content, inflate it
         decompress = lambda { |input|

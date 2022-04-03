@@ -1,10 +1,24 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require 'simplecov'
+SimpleCov.start
+
 require "http_zip"
 
 require "minitest/autorun"
 require 'webmock/minitest'
 
 class MiniTest::Test
+  def mock_range_request(url, file)
+    stub_request(:get, url).to_return do |request|
+      range = request.headers['Range']
+      if range.empty?
+        { status: 200, body: '' }
+      else
+        { status: 206, body: read_range(file, range) }
+      end
+    end
+  end
+
   def read_range(file, range)
     match = /bytes=(\d+)?-(\d+)/.match(range)
     if match[1].nil?
