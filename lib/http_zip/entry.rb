@@ -2,6 +2,7 @@
 
 module HttpZip
   # Describes one entry in an HTTP zip archive
+  # @attr_reader [String] name filename of the entry
   class Entry
     attr_reader :name
 

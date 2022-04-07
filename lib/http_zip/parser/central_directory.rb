@@ -2,6 +2,7 @@
 
 module HttpZip
   module Parser
+    # Parses the End Of Central Directory (EOCD) block of a zip file.
     class CentralDirectory
       EOCD_BLOCK_IDENTIFIER = "\x50\x4B\x05\x06"
       EOCD64_LOCATOR_BLOCK_IDENTIFER = "\x50\x4b\x06\x07"
@@ -9,12 +10,19 @@ module HttpZip
 
       attr_reader :size, :offset, :eocd64_offset
 
+      # Create a new instance of CentralDirectory.
+      #
+      # @param [String] end_of_central_directory_bytes the byte string including the EOCD block
       def initialize(end_of_central_directory_bytes)
         @bytes = end_of_central_directory_bytes
 
         parse!
       end
 
+      # Read the size and offset of the central directory from a Zip64 EOCD block.
+      #
+      # @param [String] eocd64_block the byte string including the EOCD block for a zip64 archive
+      # @raise [ZipError] if the byte stream does not contain a valid EOCD64 block
       def parse_eocd64!(eocd64_block)
         unless eocd64_block.start_with?(EOCD64_BLOCK_IDENTIFER)
           raise ZipError, 'EOCD64 record not found'
@@ -25,6 +33,10 @@ module HttpZip
 
       private
 
+      # Parses the size and offset of the central directory from the EOCD block.
+      # If this is a zip64 archive, the `eocd64_offset` will be set.
+      # @raise [ZipError] if this is a zip64 archive and the EOCD64 locator block is not found or
+      #   the archive is split on multipe disks.
       def parse!
         eocd_block_index = get_eocd_block_index(@bytes)
         eocd_block = @bytes[eocd_block_index..-1]

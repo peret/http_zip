@@ -2,6 +2,7 @@
 
 module HttpZip
   module Parser
+    # Parses the Central Directory File Header.
     class CentralDirectoryFileHeader
       ZIP64_EXTRA_FIELD_HEADER_ID = "\x01\x00"
       CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER = "\x50\x4B\x01\x02"
@@ -20,6 +21,10 @@ module HttpZip
         :end_of_entry
       )
 
+      # Create a new instance of CentralDirectoryFileHeader.
+      #
+      # @param [String] file_header_bytes the byte string of the file header
+      # @raises [ZipError] if byte string doesn't not represent a valid file header
       def initialize(file_header_bytes)
         @bytes = file_header_bytes
         unless @bytes.start_with?(CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER)
@@ -31,6 +36,8 @@ module HttpZip
 
       private
 
+      # Parses the fields from the Central Directory File Header,
+      # including data in Zip64 extra fields
       def parse!
         @compressed_size,
           @uncompressed_size,
@@ -52,18 +59,12 @@ module HttpZip
         parse_zip64_extra_field_if_present!(extra_field_bytes)
       end
 
-      # Parses the extra fields section of a local file header in order to extract
-      # the larger values for uncompressed size, compressed size and header offset
-      # of the ZIP file if they weren’t specified in the local file header already
+      # Parses the extra fields section of a Central Directory File Header in order to extract
+      # the larger values for uncompressed size, compressed size, header offset, and disk number
+      # of the ZIP file if they weren’t specified in the Central Directory File Header already.
       #
       # @param [String] full_extra_field_bytes the byte stream of the full extra fields
-      #                 section of this local file header
-      # @param [Integer] uncompressed_size as extracted from the local file header
-      # @param [Integer] compressed_size as extracted from the local file header
-      # @param [Integer] header_offset as extracted from the local file header
-      #
-      # @return [[uncompressed_size, compressed_size, header_offset]] either as it was passed, or, if it
-      #         could successfully be parsed from there, from the zip64 extra field
+      #                 section of this Central Directory File Header
       def parse_zip64_extra_field_if_present!(full_extra_field_bytes)
         remaining_extra_field_bytes = full_extra_field_bytes
         until remaining_extra_field_bytes.empty?
@@ -75,30 +76,38 @@ module HttpZip
 
           # did we find the Zip64 extra field?
           if remaining_extra_field_bytes.start_with?(ZIP64_EXTRA_FIELD_HEADER_ID)
-            # the zip64 extra field tries to store as little information as possible,
-            # so only the values too large for the non-zip64 file header will be stored here
-
-            ptr = 4
-            if @uncompressed_size == 0xFFFFFFFF
-              @uncompressed_size = remaining_extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
-              ptr += 8
-            end
-            if @compressed_size == 0xFFFFFFFF
-              @compressed_size = remaining_extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
-              ptr += 8
-            end
-            if @header_offset == 0xFFFFFFFF
-              @header_offset = remaining_extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
-              ptr += 8
-            end
-            if @disk_number == 0xFFFF
-              @disk_number = remaining_extra_field_bytes[ptr...(ptr + 4)].unpack1('V')
-            end
+            read_values_from_extra_field_bytes!(remaining_extra_field_bytes[2..-1])
             break
           end
 
           total_extra_field_length = 2 + 2 + record_length
           remaining_extra_field_bytes = remaining_extra_field_bytes[total_extra_field_length..-1]
+        end
+      end
+
+      # Sets values for uncompressed size, compressed size, header offset, and disk number
+      # according to the values stored in the extra field.
+      #
+      # @param [String] extra_field_bytes the byte stream of the extra fields, starting right after
+      #   the extra field header identifier
+      def read_values_from_extra_field_bytes!(extra_field_bytes)
+        # the zip64 extra field tries to store as little information as possible,
+        # so only the values too large for the non-zip64 file header will be stored here
+        ptr = 2 # ignore the size field, since it seems to be incorrect in some cases
+        if @uncompressed_size == 0xFFFFFFFF
+          @uncompressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          ptr += 8
+        end
+        if @compressed_size == 0xFFFFFFFF
+          @compressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          ptr += 8
+        end
+        if @header_offset == 0xFFFFFFFF
+          @header_offset = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          ptr += 8
+        end
+        if @disk_number == 0xFFFF
+          @disk_number = extra_field_bytes[ptr...(ptr + 4)].unpack1('V')
         end
       end
     end

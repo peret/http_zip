@@ -18,6 +18,7 @@ module HttpZip
     # Create a HttpZip file object that is located at url.
     #
     # @param [String] url where the file is hosted
+    # @raise [ContentRangeError] if the server does not support the Range header
     def initialize(url)
       @url = url
       @entries = nil
