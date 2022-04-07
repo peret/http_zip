@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HttpZip
   # 256x256 bytes is the maximum length of the EOCD comment,
   # 22 bytes is the remaining EOCD size

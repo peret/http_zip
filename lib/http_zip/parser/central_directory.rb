@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module HttpZip
   module Parser
     class CentralDirectory
-      EOCD_BLOCK_IDENTIFIER = "\x50\x4B\x05\x06".freeze
-      EOCD64_LOCATOR_BLOCK_IDENTIFER = "\x50\x4b\x06\x07".freeze
-      EOCD64_BLOCK_IDENTIFER = "\x50\x4b\x06\x06".freeze
+      EOCD_BLOCK_IDENTIFIER = "\x50\x4B\x05\x06"
+      EOCD64_LOCATOR_BLOCK_IDENTIFER = "\x50\x4b\x06\x07"
+      EOCD64_BLOCK_IDENTIFER = "\x50\x4b\x06\x06"
 
       attr_reader :size, :offset, :eocd64_offset
 
@@ -55,11 +57,10 @@ module HttpZip
         eocd_block_start_index = nil
         search_end_position = candidate_eocd_block.length
         loop do
-          eocd_block_start_index = candidate_eocd_block.rindex(EOCD_BLOCK_IDENTIFIER, search_end_position)
+          eocd_block_start_index = candidate_eocd_block.rindex(EOCD_BLOCK_IDENTIFIER,
+                                                               search_end_position)
 
-          if eocd_block_start_index.nil?
-            raise ZipError, 'Could not locate valid EOCD block'
-          end
+          raise ZipError, 'Could not locate valid EOCD block' if eocd_block_start_index.nil?
 
           # we have a candidate, verify that we found the actual eocd block start by
           # checking whether its position + length matches the end of the file

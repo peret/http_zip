@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module HttpZip
   module Parser
     class CentralDirectoryFileHeader
-      ZIP64_EXTRA_FIELD_HEADER_ID = "\x01\x00".freeze
-      CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER = "\x50\x4B\x01\x02".freeze
+      ZIP64_EXTRA_FIELD_HEADER_ID = "\x01\x00"
+      CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER = "\x50\x4B\x01\x02"
 
       attr_reader(
         :compressed_size,
@@ -64,7 +66,7 @@ module HttpZip
       #         could successfully be parsed from there, from the zip64 extra field
       def parse_zip64_extra_field_if_present!(full_extra_field_bytes)
         remaining_extra_field_bytes = full_extra_field_bytes
-        until remaining_extra_field_bytes.empty? do
+        until remaining_extra_field_bytes.empty?
           # zipalign might fill up the extra fields with all zero characters,
           # so we need to abort if there’s nothing of value in the extra fields
           break if remaining_extra_field_bytes.delete("\0").empty?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HttpZip
   # Describes one entry in an HTTP zip archive
   class Entry
@@ -76,7 +78,8 @@ module HttpZip
           inflater.close
         end
       else
-        raise HttpZip::ZipError, "Unsupported compression method #{compression_method}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
+        raise HttpZip::ZipError,
+              "Unsupported compression method #{compression_method}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
       end
 
       [decompress, finish]

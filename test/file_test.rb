@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 module HttpZip
   class FileTest < Minitest::Test
     def setup
       @url = 'http://example.com/file.zip'
-      @extracted_file_path = ::File.join(__dir__, 'fixtures', 'files', '886c5960-5345-48f0-bf3c-9fd5145a62aa.jpg')
+      @extracted_file_path = ::File.join(__dir__, 'fixtures', 'files',
+                                         '886c5960-5345-48f0-bf3c-9fd5145a62aa.jpg')
       @extracted_file = ::File.open(@extracted_file_path, 'rb')
     end
 

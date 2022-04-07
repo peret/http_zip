@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'http_zip/version'
 require 'http_zip/errors'
 require 'http_zip/range_request'
