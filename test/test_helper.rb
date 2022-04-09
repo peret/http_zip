@@ -12,11 +12,12 @@ require 'webmock/minitest'
 module MiniTest
   class Test
     def mock_content_range_head_request
-      stub_request(:head, @url).to_return(
-        status: 200,
-        body: '',
-        headers: { 'Accept-Ranges' => 'bytes' }
-      )
+      stub_request(:head, @url)
+        .with(headers: { 'Range' => 'bytes=0-0' })
+        .to_return(
+          status: 206,
+          body: ''
+        )
     end
 
     def mock_range_request(url, file)

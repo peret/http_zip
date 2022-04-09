@@ -58,13 +58,14 @@ module HttpZip
       raise ContentRangeError, 'Server does not support the Range header'
     end
 
-    # Tests if the server supports the Range header by checking the "Accept-Ranges" header.
+    # Tests if the server supports the Range header by trying to request the first byte.
     #
     # @param [String] url remote file URL
     # @return [Boolean] true if the server supports the Range header
     def self.server_supports_content_range?(url)
-      response = HTTParty.head(url)
-      response.headers['Accept-Ranges'] && response.headers['Accept-Ranges'].downcase != 'none'
+      options = { headers: { 'Range' => 'bytes=0-0' } }
+      response = HTTParty.head(url, options)
+      response.code == 206
     end
   end
 end

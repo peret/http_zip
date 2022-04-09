@@ -22,17 +22,6 @@ module HttpZip
     def test_it_throws_when_server_does_not_support_content_range
       stub_request(:head, @url).to_return(
         status: 200,
-        body: '',
-        headers: { 'Accept-Ranges' => 'none' }
-      )
-      assert_raises HttpZip::ContentRangeError do
-        HttpZip::File.new(@url)
-      end
-    end
-
-    def test_it_throws_when_server_does_not_specify_content_range_support
-      stub_request(:head, @url).to_return(
-        status: 200,
         body: ''
       )
       assert_raises HttpZip::ContentRangeError do
