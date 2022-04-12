@@ -41,15 +41,21 @@ module HttpZip
     def make_request(request, &block)
       @connection.start do |http|
         response = http.request(request) do |res|
-          unless res.is_a?(Net::HTTPPartialContent)
-            raise ContentRangeError, 'Server does not support the Range header'
-          end
-
+          handle_response_code!(res)
           res.read_body(&block)
         end
 
         response.body unless block_given?
       end
+    end
+
+    def handle_response_code!(response)
+      unless response.is_a?(Net::HTTPSuccess)
+        raise RequestError, "Server responded with #{response.code} #{response.message}"
+      end
+      return if response.is_a?(Net::HTTPPartialContent)
+
+      raise ContentRangeError, 'Server does not support the Range header'
     end
   end
 end

@@ -2,6 +2,7 @@
 
 module HttpZip
   class Error < StandardError; end
-  class ContentRangeError < Error; end
+  class RequestError < Error; end
+  class ContentRangeError < RequestError; end
   class ZipError < Error; end
 end
