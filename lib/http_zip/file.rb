@@ -23,7 +23,6 @@ module HttpZip
       @url = url
       @entries = nil
       @range_request = RangeRequest.new(url)
-      @range_request.check_server_supports_content_range!
     end
 
     # Get all entries in the zip archive as an array of HttpZip::Entry.

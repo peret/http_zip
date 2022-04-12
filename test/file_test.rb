@@ -12,20 +12,9 @@ module HttpZip
     end
 
     def test_it_throws_when_server_responds_with_a_non_partial_response
-      mock_content_range_head_request
       stub_request(:get, @url).to_return(status: 200, body: '')
       assert_raises HttpZip::ContentRangeError do
         HttpZip::File.new(@url).entries
-      end
-    end
-
-    def test_it_throws_when_server_does_not_support_content_range
-      stub_request(:head, @url).to_return(
-        status: 200,
-        body: ''
-      )
-      assert_raises HttpZip::ContentRangeError do
-        HttpZip::File.new(@url)
       end
     end
 

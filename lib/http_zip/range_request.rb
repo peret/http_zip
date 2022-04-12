@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'httparty'
+require 'net/http'
 
 module HttpZip
   # Class to make Range requests to a HTTP server
@@ -9,7 +9,9 @@ module HttpZip
     #
     # @param [String] url remote file URL
     def initialize(url)
-      @url = url
+      @uri = URI(url)
+      @connection = Net::HTTP.new(@uri.host, @uri.port)
+      @connection.use_ssl = true if @uri.scheme == 'https'
     end
 
     # Request a partial object via HTTP. If a block is given, yields the response body in chunks.
@@ -18,20 +20,10 @@ module HttpZip
     # @param [Integer] to end byte of the range to request. Exclusive.
     # @yield [chunk] yields a chunk of data to the block
     # @raise [ContentRangeError] if the server responds with anything other than 206 Partial Content
-    def get(from, to)
-      options = { headers: { 'Range' => "bytes=#{from}-#{to - 1}" } }
-      options[:stream_body] = true if block_given?
-
-      response = HTTParty.get(@url, options) do |chunk|
-        yield chunk if block_given?
-      end
-
-      if response.code != 206
-        # oops, we downloaded the whole file
-        raise ContentRangeError, 'Server does not support the Range header'
-      end
-
-      response.body
+    def get(from, to, &block)
+      request = Net::HTTP::Get.new(@uri)
+      request['Range'] = "bytes=#{from}-#{to - 1}"
+      make_request(request, &block)
     end
 
     # Request the last `num_bytes` bytes of the remote file via HTTP.
@@ -39,33 +31,25 @@ module HttpZip
     # @param [Integer] num_bytes number of bytes to request
     # @raise [ContentRangeError] if the server responds with anything other than 206 Partial Content
     def last(num_bytes)
-      response = HTTParty.get(@url, headers: { 'Range' => "bytes=-#{num_bytes}" })
-      if response.code != 206
-        # oops, we downloaded the whole file
-        raise ContentRangeError, 'Server does not support the Range header'
+      request = Net::HTTP::Get.new(@uri)
+      request['Range'] = "bytes=-#{num_bytes}"
+      make_request(request)
+    end
+
+    private
+
+    def make_request(request, &block)
+      @connection.start do |http|
+        response = http.request(request) do |res|
+          unless res.is_a?(Net::HTTPPartialContent)
+            raise ContentRangeError, 'Server does not support the Range header'
+          end
+
+          res.read_body(&block)
+        end
+
+        response.body unless block_given?
       end
-
-      response.body
-    end
-
-    # Tests if the server supports the Range header by checking the "Accept-Ranges" header,
-    # otherwise raises an exception.
-    #
-    # @raise [ContentRangeError] if the server does not support the Range header
-    def check_server_supports_content_range!
-      return if self.class.server_supports_content_range?(@url)
-
-      raise ContentRangeError, 'Server does not support the Range header'
-    end
-
-    # Tests if the server supports the Range header by trying to request the first byte.
-    #
-    # @param [String] url remote file URL
-    # @return [Boolean] true if the server supports the Range header
-    def self.server_supports_content_range?(url)
-      options = { headers: { 'Range' => 'bytes=0-0' } }
-      response = HTTParty.head(url, options)
-      response.code == 206
     end
   end
 end
