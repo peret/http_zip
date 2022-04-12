@@ -20,10 +20,9 @@ module HttpZip
       from = @header_offset + header_size
       to = @header_offset + header_size + @compressed_size
 
-      decompress, _finish = decompress_funcs
-
+      decompressor = compression_method
       compressed_contents = @range_request.get(from, to)
-      decompress.call(compressed_contents)
+      decompressor.decompress(compressed_contents)
     end
 
     # Get the decompressed content of the file entry
@@ -32,14 +31,13 @@ module HttpZip
       from = @header_offset + header_size
       to = @header_offset + header_size + @compressed_size
 
-      decompress, finish = decompress_funcs
-
+      decompressor = compression_method
       ::File.open(filename, 'wb') do |out_file|
         @range_request.get(from, to) do |chunk|
-          decompressed = decompress.call(chunk)
+          decompressed = decompressor.decompress(chunk)
           out_file.write(decompressed)
         end
-        finish.call
+        decompressor.finish
       end
     end
 
@@ -57,33 +55,19 @@ module HttpZip
       30 + file_name_length + extra_field_length
     end
 
-    def decompress_funcs
+    def compression_method
       # which compression method is used?
-      compression_method = header[8...10].unpack1('v')
+      algorithm = header[8...10].unpack1('v')
 
-      case compression_method
+      case algorithm
       when 0
-        # STORED content, doesn't require decompression
-        decompress = lambda { |input|
-          input
-        }
-        finish = -> {}
+        HttpZip::Compression::Stored.new
       when 8
-        inflater = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-        # DEFLATED content, inflate it
-        decompress = lambda { |input|
-          inflater.inflate(input)
-        }
-        finish = lambda do
-          inflater.finish
-          inflater.close
-        end
+        HttpZip::Compression::Deflate.new
       else
         raise HttpZip::ZipError,
-              "Unsupported compression method #{compression_method}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
+              "Unsupported compression method #{algorithm}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
       end
-
-      [decompress, finish]
     end
   end
 end
