@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'net/http'
+require "net/http"
 
 module HttpZip
   # Class to make Range requests to a HTTP server
@@ -11,7 +11,7 @@ module HttpZip
     def initialize(url)
       @uri = URI(url)
       @connection = Net::HTTP.new(@uri.host, @uri.port)
-      @connection.use_ssl = true if @uri.scheme == 'https'
+      @connection.use_ssl = true if @uri.scheme == "https"
     end
 
     # Request a partial object via HTTP. If a block is given, yields the response body in chunks.
@@ -22,7 +22,7 @@ module HttpZip
     # @raise [ContentRangeError] if the server responds with anything other than 206 Partial Content
     def get(from, to, &block)
       request = Net::HTTP::Get.new(@uri)
-      request['Range'] = "bytes=#{from}-#{to - 1}"
+      request["Range"] = "bytes=#{from}-#{to - 1}"
       make_request(request, &block)
     end
 
@@ -32,7 +32,7 @@ module HttpZip
     # @raise [ContentRangeError] if the server responds with anything other than 206 Partial Content
     def last(num_bytes)
       request = Net::HTTP::Get.new(@uri)
-      request['Range'] = "bytes=-#{num_bytes}"
+      request["Range"] = "bytes=-#{num_bytes}"
       make_request(request)
     end
 
@@ -45,7 +45,7 @@ module HttpZip
           res.read_body(&block)
         end
 
-        response.body unless block_given?
+        response.body unless block
       end
     end
 
@@ -55,7 +55,7 @@ module HttpZip
       end
       return if response.is_a?(Net::HTTPPartialContent)
 
-      raise ContentRangeError, 'Server does not support the Range header'
+      raise ContentRangeError, "Server does not support the Range header"
     end
   end
 end

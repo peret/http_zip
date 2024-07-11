@@ -28,7 +28,7 @@ module HttpZip
       def initialize(file_header_bytes)
         @bytes = file_header_bytes
         unless @bytes.start_with?(CENTRAL_DIRECTORY_FILE_HEADER_IDENTIFIER)
-          raise ZipError, 'Central Directory File Header seems to be corrupt'
+          raise ZipError, "Central Directory File Header seems to be corrupt"
         end
 
         parse!
@@ -47,7 +47,7 @@ module HttpZip
           @disk_number,
           @internal_file_attributes,
           @external_file_attributes,
-          @header_offset = @bytes[20...46].unpack('VVvvvvvVV')
+          @header_offset = @bytes[20...46].unpack("VVvvvvvVV")
 
         file_name_end = 46 + file_name_length
         @file_name = @bytes[46...file_name_end]
@@ -72,7 +72,7 @@ module HttpZip
           # so we need to abort if there’s nothing of value in the extra fields
           break if remaining_extra_field_bytes.delete("\0").empty?
 
-          record_length = remaining_extra_field_bytes[2...4].unpack1('v')
+          record_length = remaining_extra_field_bytes[2...4].unpack1("v")
 
           # did we find the Zip64 extra field?
           if remaining_extra_field_bytes.start_with?(ZIP64_EXTRA_FIELD_HEADER_ID)
@@ -95,19 +95,19 @@ module HttpZip
         # so only the values too large for the non-zip64 file header will be stored here
         ptr = 2 # ignore the size field, since it seems to be incorrect in some cases
         if @uncompressed_size == 0xFFFFFFFF
-          @uncompressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          @uncompressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1("Q<")
           ptr += 8
         end
         if @compressed_size == 0xFFFFFFFF
-          @compressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          @compressed_size = extra_field_bytes[ptr...(ptr + 8)].unpack1("Q<")
           ptr += 8
         end
         if @header_offset == 0xFFFFFFFF
-          @header_offset = extra_field_bytes[ptr...(ptr + 8)].unpack1('Q<')
+          @header_offset = extra_field_bytes[ptr...(ptr + 8)].unpack1("Q<")
           ptr += 8
         end
         if @disk_number == 0xFFFF
-          @disk_number = extra_field_bytes[ptr...(ptr + 4)].unpack1('V')
+          @disk_number = extra_field_bytes[ptr...(ptr + 4)].unpack1("V")
         end
       end
     end

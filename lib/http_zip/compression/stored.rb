@@ -7,7 +7,8 @@ module HttpZip
         input
       end
 
-      def finish; end
+      def finish
+      end
     end
   end
 end

@@ -32,7 +32,7 @@ module HttpZip
       to = @header_offset + header_size + @compressed_size
 
       decompressor = compression_method
-      ::File.open(filename, 'wb') do |out_file|
+      ::File.open(filename, "wb") do |out_file|
         @range_request.get(from, to) do |chunk|
           decompressed = decompressor.decompress(chunk)
           out_file.write(decompressed)
@@ -50,14 +50,14 @@ module HttpZip
 
     def header_size
       # find out where the file contents start and how large the file is
-      file_name_length = header[26...28].unpack1('v')
-      extra_field_length = header[28...30].unpack1('v')
+      file_name_length = header[26...28].unpack1("v")
+      extra_field_length = header[28...30].unpack1("v")
       30 + file_name_length + extra_field_length
     end
 
     def compression_method
       # which compression method is used?
-      algorithm = header[8...10].unpack1('v')
+      algorithm = header[8...10].unpack1("v")
 
       case algorithm
       when 0
@@ -66,7 +66,7 @@ module HttpZip
         HttpZip::Compression::Deflate.new
       else
         raise HttpZip::ZipError,
-              "Unsupported compression method #{algorithm}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
+          "Unsupported compression method #{algorithm}. HttpZip only supports compression methods 0 (STORED) and 8 (DEFLATE)."
       end
     end
   end
