@@ -1,3 +1,6 @@
+# 2.1.0
+* Add getters for each entry's compressed and uncompressed size (#1).
+
 # 2.0.0
 * Drop dependency on HTTParty
 * Remove `RangeRequest.server_supports_content_range?` and `RangeRequest.check_server_supports_content_range!`
