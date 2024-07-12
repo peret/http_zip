@@ -9,7 +9,7 @@ require 'http_zip'
 require 'minitest/autorun'
 require 'webmock/minitest'
 
-module MiniTest
+module Minitest
   class Test
     def mock_range_request(url, file)
       stub_request(:get, url).to_return do |request|

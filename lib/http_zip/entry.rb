@@ -4,13 +4,14 @@ module HttpZip
   # Describes one entry in an HTTP zip archive
   # @attr_reader [String] name filename of the entry
   class Entry
-    attr_reader :name
+    attr_reader :name, :compressed_size, :uncompressed_size
 
-    def initialize(url, name, header_offset, central_directory_file_compressed_size)
+    def initialize(url, name, header_offset, central_directory_file_compressed_size, central_directory_file_uncompressed_size)
       @range_request = HttpZip::RangeRequest.new(url)
       @name = name
       @header_offset = header_offset
       @compressed_size = central_directory_file_compressed_size
+      @uncompressed_size = central_directory_file_uncompressed_size
     end
 
     # Get the decompressed content of the file entry

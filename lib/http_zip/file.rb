@@ -42,7 +42,8 @@ module HttpZip
           @url,
           file_header.file_name,
           file_header.header_offset,
-          file_header.compressed_size
+          file_header.compressed_size,
+          file_header.uncompressed_size
         )
 
         # skip ahead to next file entry
