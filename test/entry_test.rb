@@ -9,7 +9,6 @@ module HttpZip
       name = 'file.txt'
       header_offset = 10
       central_directory_file_compressed_size = 128
-      central_directory_file_compressed_size = 192
       entry = HttpZip::Entry.new(url, name, header_offset, central_directory_file_compressed_size, central_directory_file_compressed_size)
 
       compression_method = 1
