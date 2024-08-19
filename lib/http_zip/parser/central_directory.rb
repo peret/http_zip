@@ -66,24 +66,8 @@ module HttpZip
 
         # Scan the downloaded bytes from right to left to find the magic EOCD
         # block identifier
-        eocd_block_start_index = nil
-        search_end_position = candidate_eocd_block.length
-        loop do
-          eocd_block_start_index = candidate_eocd_block.rindex(EOCD_BLOCK_IDENTIFIER,
-            search_end_position)
-
-          raise ZipError, "Could not locate valid EOCD block" if eocd_block_start_index.nil?
-
-          # we have a candidate, verify that we found the actual eocd block start by
-          # checking whether its position + length matches the end of the file
-          comment_length = candidate_eocd_block[(eocd_block_start_index + 20)...(eocd_block_start_index + 22)].unpack1("v")
-          if (eocd_block_start_index + 22 + comment_length) == candidate_eocd_block.length
-            # we found it
-            break
-          end
-
-          search_end_position = eocd_block_start_index
-        end
+        eocd_block_start_index = candidate_eocd_block.rindex(EOCD_BLOCK_IDENTIFIER)
+        raise ZipError, "Could not locate valid EOCD block" if eocd_block_start_index.nil?
 
         eocd_block_start_index
       end
