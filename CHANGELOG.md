@@ -1,3 +1,6 @@
+# 2.1.1
+* Fix issue with detecting EOCD blocks of ZIP files that contain additional data after the EOCD (#2).
+
 # 2.1.0
 * Add getters for each entry's compressed and uncompressed size (#1).
 
